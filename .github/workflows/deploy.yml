@@ -1,0 +1,77 @@
+name: deploy-servidor
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Setup do Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.0"
+      - name: Rodar testes da API
+        run: go test ./...
+        working-directory: ./ean13-generator-api
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Login no GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build e Push da Imagem da API
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ean13-generator-api
+          push: true
+          tags: |
+            ghcr.io/luscaer/ean13-generator-api:latest
+            ghcr.io/luscaer/ean13-generator-api:sha-${{ github.sha }}
+      - name: Build e Push da Imagem da SPA
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ean13-generator-spa
+          push: true
+          tags: |
+            ghcr.io/luscaer/ean13-generator-spa:latest
+            ghcr.io/luscaer/ean13-generator-spa:sha-${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Copiar docker-compose para a EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yaml"
+          target: "~/Projetos/ean13-generator/"
+      - name: Executar Deploy via SSH na EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/Projetos/ean13-generator
+            docker compose -f docker-compose.prod.yaml pull
+            docker compose -f docker-compose.prod.yaml up -d --remove-orphans

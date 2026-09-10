@@ -1,14 +1,12 @@
 services:
   api:
-    build: 
-      context: ./ean13-generator-api
+    image: ghcr.io/luscaer/ean13-generator-api:latest
     restart: unless-stopped
     networks:
       - proxy-network
   
   spa:
-    build: 
-      context: ./ean13-generator-spa
+    image: ghcr.io/luscaer/ean13-generator-spa:latest
     expose:
       - "80"
     restart: unless-stopped
