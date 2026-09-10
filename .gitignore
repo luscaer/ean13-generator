@@ -1,0 +1,17 @@
+# Dependências do Node/React
+node_modules/
+dist/
+
+# Binário compilado da API Go
+ean13-generator-api/api
+
+# Variáveis de ambiente (NUNCA commitar segredos)
+.env
+.env.local
+.env.production
+
+# Arquivos de sistema macOS
+.DS_Store
+
+# Logs
+*.log

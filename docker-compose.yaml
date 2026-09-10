@@ -1,0 +1,15 @@
+services:
+  api:
+    build: 
+      context: ./ean13-generator-api
+    ports:
+      - "8080:8080"
+  
+  spa:
+    build: 
+      context: ./ean13-generator-spa
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./ean13-generator-spa:/app
+      - /app/node_modules
