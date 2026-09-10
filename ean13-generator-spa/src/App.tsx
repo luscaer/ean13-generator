@@ -46,7 +46,7 @@ function App() {
         setPrefixo={setPrefixo}
         codigoItem={codigoItem}
         setCodigoItem={setCodigoItem}
-        onGerar={handleGerar}
+        onGerar={() => handleGerar()}
         onGerarAleatorio={handleGerarAleatorio}
       />
 
