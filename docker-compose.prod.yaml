@@ -1,0 +1,20 @@
+services:
+  api:
+    build: 
+      context: ./ean13-generator-api
+    restart: unless-stopped
+    networks:
+      - proxy-network
+  
+  spa:
+    build: 
+      context: ./ean13-generator-spa
+    expose:
+      - "80"
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
+networks:
+  proxy-network:
+    external: true
