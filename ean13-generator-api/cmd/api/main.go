@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	http.HandleFunc("GET /health", delivery.HealthHandler)
-	http.HandleFunc("POST /ean", delivery.GerarEANHandler)
+	http.HandleFunc("GET /api/health", delivery.HealthHandler)
+	http.HandleFunc("POST /api/ean", delivery.GerarEANHandler)
 
 	port := ":8080"
 	log.Printf("Servidor rodando com sucesso na porta %s...\n", port)
