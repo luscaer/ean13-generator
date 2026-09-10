@@ -67,11 +67,15 @@ jobs:
           target: "~/Projetos/ean13-generator/"
       - name: Executar Deploy via SSH na EC2
         uses: appleboy/ssh-action@master
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: GHCR_TOKEN
           script: |
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u luscaer --password-stdin
             cd ~/Projetos/ean13-generator
             docker compose -f docker-compose.prod.yaml pull
             docker compose -f docker-compose.prod.yaml up -d --remove-orphans
